@@ -21,7 +21,7 @@ function Signup() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form onSubmit={handleSignup} className="bg-white p-6 rounded-lg shadow-md w-80 space-y-4">
-        <h2 className="text-xl font-bold text-center text-green-600">Sign Up</h2>
+        <h2 className="text-xl font-bold text-center text-blue-600">Sign Up</h2>
 
         <input
           type="email"
@@ -52,12 +52,12 @@ function Signup() {
 
         <p className="text-sm text-center">
           Already have an account?{" "}
-          <Link to="/" className="text-green-600 hover:underline">
+          <Link to="/" className="text-blue-600 hover:underline">
             Login
           </Link>
         </p>
 
-        <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+        <button type="submit" className="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-500">
           Sign Up
         </button>
       </form>
