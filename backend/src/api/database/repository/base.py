@@ -11,7 +11,7 @@ T = TypeVar("T")
 
 class BaseRepository(Generic[T]):
     """
-    Generic base repository class providing common asynchronous CRUD operations for SQLAlchemy schemas.
+    Generic base repository class providing common asynchronous CRUD operations for SQLAlchemy models.
 
     This repository handles asynchronous database operations using SQLAlchemy's AsyncSession.
 

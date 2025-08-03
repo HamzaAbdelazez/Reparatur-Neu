@@ -8,6 +8,7 @@ from starlette.status import HTTP_200_OK
 from api.config.core import configure_logging
 from api.config.db import init_db_tables
 from api.routers.users import router as users_router
+from api.routers.uploaded_pdfs import router as uploaded_pdfs_router
 
 # Set up logging configuration
 configure_logging()
@@ -34,6 +35,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Reparatur API", lifespan=lifespan)
 
 app.include_router(users_router)
+
+app.include_router(uploaded_pdfs_router)
 
 
 @app.get(

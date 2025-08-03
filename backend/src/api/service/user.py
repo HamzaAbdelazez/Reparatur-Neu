@@ -6,7 +6,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERRO
 
 from api.database.repository.user import UserRepository
 from api.database.table_models import User
-from api.schemas.user import UserOut, UserIn
+from api.models.user import UserOut, UserIn
 from api.shared.password_helper import hash_password
 
 logger = logging.getLogger(__name__)
