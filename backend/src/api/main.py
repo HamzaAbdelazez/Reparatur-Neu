@@ -1,7 +1,35 @@
+import logging
+from contextlib import asynccontextmanager
+
 import uvicorn
 from fastapi import FastAPI
 
-app = FastAPI(title="Reparatur API")
+from api.config.core import configure_logging
+from api.config.db import init_db_tables
+
+# Set up logging configuration
+configure_logging()
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    FastAPI lifespan event to run startup and shutdown code.
+
+    Initializes database tables when the app starts.
+    """
+    try:
+        logger.info("Initializing database tables")
+        await init_db_tables()
+        logger.info("Database tables initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize DB tables: {e}")
+        raise
+    yield  # Continue running the app
+
+
+app = FastAPI(title="Reparatur API", lifespan=lifespan)
 
 
 @app.get("/")

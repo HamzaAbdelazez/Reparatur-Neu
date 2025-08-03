@@ -1,4 +1,7 @@
-FROM python:3.10-slim
+ARG DOCKER_REGISTRY
+
+# === Base image with dependencies
+FROM ${DOCKER_REGISTRY}python:3.12-bookworm AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -29,4 +32,4 @@ COPY ./tests ./tests
 
 ENV PYTHONPATH=/app/src
 
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
