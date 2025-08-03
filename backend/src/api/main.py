@@ -3,9 +3,11 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from starlette.status import HTTP_200_OK
 
 from api.config.core import configure_logging
 from api.config.db import init_db_tables
+from api.routers.users import router as users_router
 
 # Set up logging configuration
 configure_logging()
@@ -31,8 +33,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Reparatur API", lifespan=lifespan)
 
+app.include_router(users_router)
 
-@app.get("/")
+
+@app.get(
+    path="/",
+    operation_id="getHealth",
+    status_code=HTTP_200_OK,
+)
 async def health():
     """
     Simple health check endpoint.

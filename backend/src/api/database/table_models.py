@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, UTC
 from typing import List
 
-from sqlalchemy import String, LargeBinary, DateTime, Integer
+from sqlalchemy import String, LargeBinary, DateTime, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql.base import UUID
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
 
@@ -30,5 +30,7 @@ class UploadedPdf(Base):
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
+
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
 
     user: Mapped[User] = relationship("User", back_populates="uploaded_pdfs")
