@@ -4,8 +4,10 @@ import {useNavigate} from "react-router-dom";
 function ReparaturApp() {
     const [question, setQuestion] = useState("");
     const [file, setFile] = useState(null);
+    const [uploadedPdf, setUploadedPdf] = useState(null);
     const [history, setHistory] = useState([]);
     const [userId, setUserId] = useState(null);
+    const [uploadStatus, setUploadStatus] = useState("not_uploaded");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,15 +24,24 @@ function ReparaturApp() {
         }
     }, [navigate]);
 
-    const handleFileChange = (e) => setFile(e.target.files[0]);
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+        setUploadedPdf(null);
+        setUploadStatus("not_uploaded");
+    };
 
     const handleUploadPdf = async () => {
-        if (!file || !userId) return null;
+        if (!file) {
+            alert("Please select a PDF file before uploading.");
+            return;
+        }
 
         const formData = new FormData();
         formData.append("file", file);
 
         try {
+            setUploadStatus("uploading");
+
             const response = await fetch(
                 `http://localhost:8000/uploadedPdfs/?user_id=${userId}`,
                 {
@@ -42,30 +53,27 @@ function ReparaturApp() {
             if (!response.ok) {
                 const error = await response.json();
                 console.error("Upload error:", error.detail);
-                return null;
+                setUploadStatus("error");
+                return;
             }
 
             const result = await response.json();
-            console.log("Uploaded PDF:", result);
-            return result;
+            setUploadedPdf(result);
+            setUploadStatus("uploaded");
         } catch (error) {
             console.error("Error uploading PDF:", error);
-            return null;
+            setUploadStatus("error");
         }
     };
 
-    const handleSend = async () => {
-        if (!question.trim()) return;
+    const handleSend = async (e) => {
+        e.preventDefault();
 
-        const uploadedPdf = await handleUploadPdf();
+        if (!question.trim()) return;
 
         const newEntry = {type: "user", content: question};
         setHistory((prev) => [...prev, newEntry]);
         setQuestion("");
-
-        // Simulated bot response
-        // const botResponse = "Example response.";
-        // setHistory((prev) => [...prev, { type: "bot", content: botResponse }]);
     };
 
     const handleSignOut = () => {
@@ -76,10 +84,7 @@ function ReparaturApp() {
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col items-center">
             <div className="w-full bg-blue-500 text-white text-3xl font-bold text-center p-4 relative rounded-b-lg">
-        <span role="img" aria-label="bot">
-          🤖
-        </span>{" "}
-                Reparatur
+                🤖 Reparatur
                 <button
                     onClick={handleSignOut}
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
@@ -95,30 +100,64 @@ function ReparaturApp() {
                     className="w-24 mx-auto mb-6"
                 />
 
+                {/* Upload PDF Section */}
                 <div className="mb-6 text-left">
-                    <h2 className="text-xl font-semibold mb-10">📄 Add PDF</h2>
-                    <input type="file" accept="application/pdf" onChange={handleFileChange}/>
+                    <h2 className="text-xl font-semibold mb-4">📄 Upload PDF</h2>
+                    <div className="flex items-center justify-between space-x-2">
+                        <input type="file" accept="application/pdf" onChange={handleFileChange}/>
+                        <button
+                            onClick={handleUploadPdf}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        >
+                            Upload PDF
+                        </button>
+                    </div>
+
+                    <div className="mt-2 text-sm">
+                        {uploadStatus === "uploaded" && uploadedPdf && (
+                            <span className="text-green-600">
+                ✅ Uploaded: {uploadedPdf.original_filename || file.name}
+              </span>
+                        )}
+                        {uploadStatus === "uploading" && (
+                            <span className="text-blue-600">⏳ Uploading...</span>
+                        )}
+                        {uploadStatus === "error" && (
+                            <span className="text-red-600">❌ Upload failed</span>
+                        )}
+                        {uploadStatus === "not_uploaded" && file && (
+                            <span className="text-gray-600">⚠️ Not uploaded yet</span>
+                        )}
+                    </div>
                 </div>
 
+                {/* Ask Question */}
                 <div className="text-left">
-                    <h2 className="text-xl font-semibold mb-10">🤖 Ask question</h2>
-                    <div className="flex">
+                    <h2 className="text-xl font-semibold mb-4">🤖 Ask a Question</h2>
+                    <form onSubmit={handleSend} className="flex">
                         <input
                             type="text"
                             value={question}
                             onChange={(e) => setQuestion(e.target.value)}
                             placeholder="How can I help you..."
                             className="flex-1 border p-2 rounded-l focus:outline-none"
+                            required
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    handleSend(e);
+                                }
+                            }}
                         />
                         <button
-                            onClick={handleSend}
-                            className="bg-blue-500 text-white px-4 rounded-r hover:bg-blue-600"
+                            type="submit"
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-r"
                         >
                             Send
                         </button>
-                    </div>
+                    </form>
                 </div>
 
+                {/* Chat History */}
                 <div className="mt-8 text-left max-h-60 overflow-y-auto border-t pt-4">
                     <h3 className="text-lg font-semibold mb-2">🕘 History</h3>
                     {history.length === 0 ? (
