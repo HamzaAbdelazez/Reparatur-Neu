@@ -17,7 +17,7 @@ router = APIRouter(prefix="/uploadedPdfs", tags=["uploadedPdfs"])
 )
 async def upload_pdf(
         file: UploadFile = File(...),
-        user_id: str = "user_id",
+        user_id: str = "00000000-0000-0000-0000-000000000000",
         db: AsyncSession = Depends(db_dependency)
 ):
     # ✅ MIME type validation

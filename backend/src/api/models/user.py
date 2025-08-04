@@ -11,3 +11,13 @@ class UserIn(BaseModel):
 class UserOut(BaseModel):
     id: uuid.UUID
     username: str
+
+
+class UserLoginIn(BaseModel):
+    username: str
+    password: str
+
+
+class UserLoginOut(BaseModel):
+    id: uuid.UUID
+    username: str
