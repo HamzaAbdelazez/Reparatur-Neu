@@ -52,7 +52,7 @@ function ReparaturApp() {
 
         <div className="mb-6 text-left">
           <h2 className="text-xl font-semibold mb-10">📄 Add PDF</h2>
-          <input type="file" onChange={handleFileChange} />
+          <input type="file" accept="application/pdf" onChange={handleFileChange} />
         </div>
 
         <div className="text-left">
