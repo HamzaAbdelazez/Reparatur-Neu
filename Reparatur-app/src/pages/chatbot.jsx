@@ -4,23 +4,53 @@ import { useNavigate } from "react-router-dom";
 function ReparaturApp() {
   const [question, setQuestion] = useState("");
   const [file, setFile] = useState(null);
-  const [history, setHistory] = useState([]); // ✅ جديد
+  const [history, setHistory] = useState([]);
   const navigate = useNavigate();
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
-  const handleSend = () => {
+  const handleUploadPdf = async () => {
+    if (!file) return null;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("http://localhost:8000/uploadedPdfs/", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error("Upload error:", error.detail);
+        return null;
+      }
+
+      const result = await response.json();
+      console.log("Uploaded PDF:", result);
+      return result;
+    } catch (error) {
+      console.error("Error uploading PDF:", error);
+      return null;
+    }
+  };
+
+  const handleSend = async () => {
     if (!question.trim()) return;
 
-    // أضف السؤال إلى السجل
+    // Upload file if present
+    const uploadedPdf = await handleUploadPdf();
+
+    // Save question in history
     const newEntry = { type: "user", content: question };
     setHistory((prev) => [...prev, newEntry]);
-
-    console.log("Sending question:", question);
     setQuestion("");
 
-    // في المستقبل: أضف الرد من الـ backend هنا
-    // const botResponse = "إجابة تجريبية من الروبوت";
+    // Optionally, save uploadedPdf data or send it with the question to backend
+
+    // Example simulated bot response
+    // const botResponse = "This is a simulated response.";
     // setHistory((prev) => [...prev, { type: "bot", content: botResponse }]);
   };
 
@@ -50,11 +80,13 @@ function ReparaturApp() {
           className="w-24 mx-auto mb-6"
         />
 
+        {/* File Upload */}
         <div className="mb-6 text-left">
           <h2 className="text-xl font-semibold mb-10">📄 Add PDF</h2>
           <input type="file" accept="application/pdf" onChange={handleFileChange} />
         </div>
 
+        {/* Ask Question */}
         <div className="text-left">
           <h2 className="text-xl font-semibold mb-10">🤖 Ask question</h2>
           <div className="flex">
@@ -74,7 +106,7 @@ function ReparaturApp() {
           </div>
         </div>
 
-        {/* History Section */}
+        {/* History */}
         <div className="mt-8 text-left max-h-60 overflow-y-auto border-t pt-4">
           <h3 className="text-lg font-semibold mb-2">🕘 History</h3>
           {history.length === 0 ? (
@@ -85,7 +117,9 @@ function ReparaturApp() {
                 <li
                   key={index}
                   className={`p-2 rounded ${
-                    msg.type === "user" ? "bg-blue-100 text-right" : "bg-gray-200 text-left"
+                    msg.type === "user"
+                      ? "bg-blue-100 text-right"
+                      : "bg-gray-200 text-left"
                   }`}
                 >
                   {msg.content}
